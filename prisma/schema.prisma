@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Device {
+  id          String   @id @default(uuid())
+  name        String
+  ip          String
+  port        Int
+  slaveId     Int      @default(1) @map("slave_id")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  commands    Command[]
+
+  @@map("devices")
+}
+
+model Command {
+  id          String   @id @default(uuid())
+  name        String
+  deviceId    String   @map("device_id")
+  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  mode        String   // "RTU" or "HEX"
+  slaveId     Int?     @map("slave_id")
+  funcCode    Int?     @map("func_code")
+  address     Int?
+  quantity    Int?
+  hexString   String?  @map("hex_string")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  @@map("commands")
+}
